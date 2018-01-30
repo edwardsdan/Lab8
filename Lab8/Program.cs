@@ -76,18 +76,14 @@ namespace Lab8
     {
         static void Main(string[] args)
         {
-            // # base/atbats -> slugging %
-            // # hits / atbats -> batting average
             while (true)
             {
                 Console.Write("Enter the number of batters: ");
                 int NumberBatters = Validate.PositiveInt(Console.ReadLine());
-                Console.Write("Enter the number of times at bat: ");
-                int NumberAtBats = Validate.PositiveInt(Console.ReadLine());
+                
+                PrintAverages(StoreResults(NumberBatters));
 
-                PrintAverages(StoreResults(NumberBatters, NumberAtBats));
-
-                Console.WriteLine("Another batter? (y/Y/n/N)");
+                Console.WriteLine("Another team? (y/Y/n/N)");
                 if (Validate.Continue(Console.ReadLine()) == false)
                 {
                     Console.WriteLine("Goodbye!");
@@ -96,40 +92,42 @@ namespace Lab8
             }
         }
 
-        public static int[,] StoreResults(int x, int y)
+        public static int[][] StoreResults(int x)
         {
-            int[,] NumberAtBats = new int[x, y];
+            int[][] BatterData = new int[x][];
             Console.WriteLine("What were the results? 0=out 1=single 2=double 3=triple 4=homerun");
 
             for (int r = 0; r < x; r++)
             {
-                for (int c = 0; c < y; c++)
+                Console.Write($"Enter the number of at-bats for batter {r+1}: ");
+                int Columns = Validate.PositiveInt(Console.ReadLine());
+                BatterData[r] = new int[Columns];
+                for (int c = 0; c < Columns; c++)
                 {
-                    Console.Write("Result for at-bat: ");
-                    NumberAtBats[r, c] = Validate.ResultAtBat(Console.ReadLine());
+                    Console.Write($"Batter {r+1} result {c+1} for at-bat: ");
+                    BatterData[r][c] = Validate.ResultAtBat(Console.ReadLine());
                 }
             }
-            return NumberAtBats;
+            return BatterData;
         }
 
-        public static void PrintAverages(int[,] AtBats)
+        public static void PrintAverages(int[][] AtBats)
         {
             int TotalBases = 0;
             int TotalHits = 0;
 
             for (int r = 0; r < AtBats.GetLength(0); r++)
-            { // .GetLength(x) x = # of dimension of array
-                for (int c = 0; c < AtBats.GetLength(1); c++)
+            { // .GetLength(x) x = # of dimension of RECTANGULAR array
+                for (int c = 0; c < AtBats[r].Length; c++)
                 {
-                    TotalBases += AtBats[r,c];
-                    if (AtBats[r,c] > 0)
+                    TotalBases += AtBats[r][c];
+                    if (AtBats[r][c] > 0)
                         TotalHits++;
                 }
+                double Slugging = Math.Round(Convert.ToDouble(TotalBases) / AtBats[r].Length, 3);
+                double Batting = Math.Round(Convert.ToDouble(TotalHits) / AtBats[r].Length, 3);
+                Console.WriteLine($"Batter {r+1} average: {Batting}\t\tslugging percentage: {Slugging}");
             }
-            double Slugging = Math.Round(Convert.ToDouble(TotalBases) / AtBats.Length, 3);
-            Console.WriteLine(Slugging);
-            double Batting = Math.Round(Convert.ToDouble(TotalHits) / AtBats.Length, 3);
-            Console.WriteLine(Batting);
         }
     }
 }
